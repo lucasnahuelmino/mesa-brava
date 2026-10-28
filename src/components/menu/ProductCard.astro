@@ -1,0 +1,263 @@
+---
+import { Image } from 'astro:assets';
+import type { Product } from '../../data/menu';
+import { getCategory } from '../../data/menu';
+import { formatARS } from '../../lib/format';
+
+interface Props {
+  product: Product;
+  variant?: 'row' | 'feature';
+  /** Número impreso (01, 02…) para listas editoriales. */
+  index?: string;
+}
+
+const { product, variant = 'row', index } = Astro.props;
+const category = getCategory(product.category);
+---
+
+<article
+  class:list={['product', `product--${variant}`]}
+  data-product
+  data-id={product.id}
+  data-category={product.category}
+  data-name={product.name}
+  data-available={String(product.available)}
+  data-featured={String(Boolean(product.featured))}
+  data-tags={product.tags.join(' ')}
+>
+  <div class="product__media media" data-fallback="sin foto">
+    <Image
+      src={product.image}
+      alt={product.alt}
+      widths={variant === 'feature' ? [400, 700, 1000] : [200, 320]}
+      sizes={variant === 'feature' ? '(min-width: 900px) 640px, 100vw' : '120px'}
+      loading="lazy"
+      decoding="async"
+      class="product__img"
+    />
+    {
+      !product.available && (
+        <span class="product__stamp">No disponible hoy</span>
+      )
+    }
+  </div>
+
+  <div class="product__body">
+    {
+      index && (
+        <span class="product__index" aria-hidden="true">
+          {index}
+        </span>
+      )
+    }
+
+    <div class="product__head">
+      <h3 class="product__name">{product.name}</h3>
+      <span class="leader__line" aria-hidden="true"></span>
+      <p class="product__price price">{formatARS(product.price)}</p>
+    </div>
+
+    {
+      product.tags.length > 0 && (
+        <ul class="product__tags">
+          {product.tags.map((tag) => (
+            <li class:list={['badge', tag === 'recomendado' ? 'badge--rec' : 'badge--tag']}>
+              {tag}
+            </li>
+          ))}
+        </ul>
+      )
+    }
+
+    <p class="product__desc">{product.description}</p>
+
+    <div class="product__foot">
+      <p class="product__category">{category.label}</p>
+      {
+        product.available ? (
+          <button
+            type="button"
+            class="btn btn--sm product__add"
+            data-cart-add={product.id}
+            data-cart-name={product.name}
+          >
+            <span class="product__add-label">
+              <span class="product__add-default">Agregar</span>
+              <span class="product__add-done">Agregado</span>
+            </span>
+            <span class="visually-hidden">{product.name}</span>
+            <span aria-hidden="true">+</span>
+          </button>
+        ) : (
+          <span class="badge badge--off product__off">No disponible</span>
+        )
+      }
+    </div>
+  </div>
+</article>
+
+<style>
+  .product {
+    display: grid;
+    grid-template-columns: 88px minmax(0, 1fr);
+    gap: 0.9rem;
+    padding: 1.1rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .product__media {
+    position: relative;
+    width: 88px;
+    height: 88px;
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .product__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .product__body {
+    display: grid;
+    gap: 0.4rem;
+    align-content: start;
+    min-width: 0;
+  }
+
+  .product__index {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    color: var(--olive-dark);
+  }
+
+  .product__head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .product__name {
+    font-size: clamp(1.02rem, 0.95rem + 0.4vw, 1.2rem);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+  .leader__line {
+    display: none;
+    flex: 1 1 40px;
+    min-width: 30px;
+    border-bottom: 1.5px dotted var(--line-strong);
+    transform: translateY(-0.3em);
+  }
+  .product__price {
+    font-size: 1.02rem;
+    white-space: nowrap;
+  }
+
+  .product__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .product__desc {
+    font-size: 0.9rem;
+    line-height: 1.55;
+    color: var(--ink-soft);
+  }
+
+  .product__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 0.25rem;
+  }
+  .product__category {
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .product__add {
+    min-width: 128px;
+  }
+  .product__add-done {
+    display: none;
+  }
+  .product__add.is-added {
+    --btn-bg: var(--olive-dark);
+    --btn-bd: var(--olive-dark);
+    --btn-fg: var(--white);
+  }
+  .product__add.is-added .product__add-default {
+    display: none;
+  }
+  .product__add.is-added .product__add-done {
+    display: inline;
+  }
+  .product__off {
+    background: var(--white);
+  }
+
+  .product__stamp {
+    position: absolute;
+    inset: auto 0 0 0;
+    padding: 0.3rem 0.4rem;
+    text-align: center;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--cream);
+    background: rgba(36, 35, 34, 0.88);
+  }
+
+  /* ---- variante destacado (inicio) ---- */
+  .product--feature {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.25rem;
+    border-bottom: 0;
+    padding: 0;
+  }
+  .product--feature .product__media {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius-lg);
+  }
+  .product--feature .product__name {
+    font-size: clamp(1.5rem, 1.1rem + 2vw, 2.2rem);
+  }
+  .product--feature .product__price {
+    font-size: 1.25rem;
+  }
+  .product--feature .product__desc {
+    font-size: 0.98rem;
+    max-width: 52ch;
+  }
+  .product--feature .leader__line {
+    display: block;
+  }
+
+  @media (min-width: 560px) {
+    .product {
+      grid-template-columns: 120px minmax(0, 1fr);
+      gap: 1.25rem;
+      padding: 1.35rem 0;
+    }
+    .product__media {
+      width: 120px;
+      height: 120px;
+    }
+    .leader__line {
+      display: block;
+    }
+    .product__stamp {
+      font-size: 0.62rem;
+      padding: 0.35rem 0.5rem;
+    }
+  }
+</style>

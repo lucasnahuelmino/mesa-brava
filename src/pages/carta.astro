@@ -1,0 +1,377 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import MenuToolbar from '../components/menu/MenuToolbar.astro';
+import ProductCard from '../components/menu/ProductCard.astro';
+import { CATEGORIES, PRODUCTS, getProductsByCategory } from '../data/menu';
+import { SITE } from '../config/site';
+import { waContactLink } from '../lib/whatsapp';
+import cartaImg from '../assets/images/editorial-carta.jpg';
+import { Image } from 'astro:assets';
+
+const title = `La carta · ${SITE.name}`;
+const description =
+  'Menú completo de MESA BRAVA (demo): entradas, platos principales, hamburguesas, opciones vegetarianas, café y pastelería. Filtrá por categoría, buscá por nombre y armá tu pedido por WhatsApp.';
+
+const total = PRODUCTS.length;
+const disponibles = PRODUCTS.filter((product) => product.available).length;
+---
+
+<BaseLayout title={title} description={description} path="/carta">
+  <section class="menu-hero">
+    <div class="shell menu-hero__inner">
+      <div class="menu-hero__copy">
+        <p class="eyebrow">Carta digital</p>
+        <h1 class="menu-hero__title">La carta</h1>
+        <p class="lede">
+          {total} platos, bebidas y postres para mirar con calma. Filtrá por categoría, buscá por
+          nombre y agregá lo que quieras a tu pedido: el resumen se arma solo.
+        </p>
+        <ul class="menu-hero__meta">
+          <li><strong>{total}</strong> productos</li>
+          <li><strong>{disponibles}</strong> disponibles hoy</li>
+          <li>Precios en pesos argentinos</li>
+        </ul>
+      </div>
+      <div class="menu-hero__media media" data-fallback="la carta">
+        <Image
+          src={cartaImg}
+          alt="Mesa de restaurante con platos servidos y cubiertos vista desde arriba"
+          widths={[520, 860]}
+          sizes="(min-width: 860px) 42vw, 100vw"
+          loading="eager"
+          decoding="async"
+        />
+      </div>
+    </div>
+  </section>
+
+  <MenuToolbar />
+
+  <div class="shell menu" data-menu>
+    {
+      CATEGORIES.map((category) => (
+        <section
+          class="menu-section"
+          id={category.id}
+          data-menu-section
+          data-section={category.id}
+          aria-labelledby={`cat-${category.id}`}
+        >
+          <header class="menu-section__head">
+            <span class="menu-section__index" aria-hidden="true">
+              {category.index}
+            </span>
+            <div>
+              <h2 class="menu-section__title" id={`cat-${category.id}`}>
+                {category.label}
+              </h2>
+              <p class="menu-section__desc">{category.description}</p>
+            </div>
+          </header>
+
+          <div class="menu-section__list">
+            {getProductsByCategory(category.id).map((product) => (
+              <ProductCard product={product} />
+            ))}
+          </div>
+        </section>
+      ))
+    }
+
+    <div class="empty-state menu__empty" data-menu-empty hidden>
+      <h3>No encontramos nada con ese nombre</h3>
+      <p>Probá con otra palabra, revisá la ortografía o volvé a ver todos los platos.</p>
+      <button class="btn btn--sm" type="button" data-menu-reset>Ver toda la carta</button>
+    </div>
+  </div>
+
+  <section class="menu-cta">
+    <div class="shell menu-cta__inner">
+      <div>
+        <p class="eyebrow eyebrow--light">¿Ya elegiste?</p>
+        <h2 class="menu-cta__title">Armá el pedido y envialo por WhatsApp</h2>
+        <p class="menu-cta__text">
+          Sumá platos con el botón <strong>Agregar</strong>, revisá cantidades y subtotal, y
+          confirmá desde WhatsApp. En esta demo no hay cobro ni pedido automático: el restaurante
+          responde para confirmar disponibilidad.
+        </p>
+      </div>
+      <div class="menu-cta__actions">
+        <button class="btn btn--cream" type="button" data-cart-open>
+          Ver mi pedido
+        </button>
+        <a
+          class="btn btn--outline-light"
+          href={waContactLink()}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Escribir por WhatsApp
+        </a>
+        <a class="menu-cta__link text-link text-link--light" href="/reservas">
+          Reservar una mesa <span aria-hidden="true">→</span>
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .menu-hero {
+    padding: clamp(2.5rem, 6vw, 4.5rem) 0 clamp(2rem, 5vw, 3rem);
+    background: var(--cream);
+    border-bottom: 1px solid var(--line);
+  }
+  .menu-hero__inner {
+    display: grid;
+    gap: clamp(1.75rem, 4vw, 3rem);
+    align-items: center;
+  }
+  .menu-hero__copy {
+    display: grid;
+    gap: 1rem;
+  }
+  .menu-hero__title {
+    font-size: clamp(2.6rem, 1.5rem + 5vw, 4.5rem);
+    letter-spacing: -0.03em;
+  }
+  .menu-hero__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 1.5rem;
+    font-size: 0.86rem;
+    color: var(--ink-soft);
+  }
+  .menu-hero__meta strong {
+    color: var(--ink);
+  }
+  .menu-hero__media {
+    aspect-ratio: 16 / 10;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .menu {
+    padding-top: clamp(2rem, 5vw, 3.5rem);
+    padding-bottom: clamp(3rem, 7vw, 5rem);
+    display: grid;
+    gap: clamp(2.5rem, 6vw, 4.5rem);
+  }
+
+  .menu-section__head {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    padding-bottom: 1.25rem;
+    margin-bottom: 0.5rem;
+    border-bottom: 2px solid var(--ink);
+  }
+  .menu-section__index {
+    font-family: var(--font-display);
+    font-size: clamp(1.4rem, 1rem + 2vw, 2rem);
+    color: var(--bordeaux);
+    line-height: 1;
+    padding-top: 0.2rem;
+  }
+  .menu-section__title {
+    font-size: clamp(1.5rem, 1.1rem + 2vw, 2.3rem);
+  }
+  .menu-section__desc {
+    margin-top: 0.4rem;
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+    max-width: 62ch;
+  }
+
+  .menu-section__list {
+    display: grid;
+  }
+
+  @media (min-width: 720px) {
+    .menu-section__list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: clamp(1.5rem, 4vw, 3rem);
+    }
+    .menu-section__list > :global(article) {
+      border-bottom: 1px solid var(--line);
+    }
+  }
+
+  .menu__empty[hidden] {
+    display: none;
+  }
+
+  .menu-cta {
+    background: var(--black);
+    color: var(--cream);
+    padding: clamp(2.75rem, 6vw, 4.5rem) 0;
+  }
+  .menu-cta__inner {
+    display: grid;
+    gap: 2rem;
+  }
+  .menu-cta__title {
+    font-size: clamp(1.7rem, 1.2rem + 2.4vw, 2.6rem);
+    margin: 0.75rem 0 0.9rem;
+    max-width: 20ch;
+  }
+  .menu-cta__text {
+    color: rgba(245, 240, 230, 0.8);
+    max-width: 58ch;
+    line-height: 1.65;
+  }
+  .menu-cta__text strong {
+    color: var(--cream);
+  }
+  .menu-cta__actions {
+    display: grid;
+    gap: 0.75rem;
+    align-content: start;
+    justify-items: start;
+  }
+  .menu-cta__link {
+    margin-top: 0.5rem;
+  }
+
+  @media (min-width: 860px) {
+    .menu-hero__inner {
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    }
+    .menu-cta__inner {
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      align-items: center;
+    }
+    .menu-cta__actions {
+      justify-items: stretch;
+    }
+  }
+</style>
+
+<script>
+  const normalize = (value: string) =>
+    value
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+
+  const products = Array.from(document.querySelectorAll<HTMLElement>('[data-product]'));
+  const sections = Array.from(document.querySelectorAll<HTMLElement>('[data-menu-section]'));
+  const chips = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-cat]'));
+  const queryInput = document.querySelector<HTMLInputElement>('[data-menu-query]');
+  const clearBtn = document.querySelector<HTMLButtonElement>('[data-menu-clear]');
+  const hideOffInput = document.querySelector<HTMLInputElement>('[data-menu-hide-off]');
+  const countEl = document.querySelector<HTMLElement>('[data-menu-count]');
+  const emptyEl = document.querySelector<HTMLElement>('[data-menu-empty]');
+  const resetBtn = document.querySelector<HTMLButtonElement>('[data-menu-reset]');
+
+  const categoryIds = sections.map((section) => section.dataset.section ?? '');
+  const state = { category: 'all', query: '', hideOff: false };
+
+  const matches = (product: HTMLElement) => {
+    const category = product.dataset.category ?? '';
+    const available = product.dataset.available === 'true';
+    const featured = product.dataset.featured === 'true';
+
+    if (state.category === 'featured' && !featured) return false;
+    if (state.category !== 'all' && state.category !== 'featured' && category !== state.category) {
+      return false;
+    }
+    if (state.hideOff && !available) return false;
+    if (state.query && !normalize(product.dataset.name ?? '').includes(state.query)) return false;
+    return true;
+  };
+
+  function syncChips() {
+    chips.forEach((chip) => {
+      chip.setAttribute('aria-pressed', String(chip.dataset.cat === state.category));
+    });
+  }
+
+  function syncHash() {
+    const hash = state.category === 'all' ? '' : `#${state.category}`;
+    const url = `${window.location.pathname}${window.location.search}${hash}`;
+    window.history.replaceState(null, '', url || window.location.pathname);
+  }
+
+  function apply({ updateHash = false } = {}) {
+    let visible = 0;
+    products.forEach((product) => {
+      const show = matches(product);
+      product.hidden = !show;
+      if (show) visible += 1;
+    });
+
+    sections.forEach((section) => {
+      const items = Array.from(section.querySelectorAll<HTMLElement>('[data-product]'));
+      section.hidden = !items.some((item) => !item.hidden);
+    });
+
+    if (emptyEl) emptyEl.hidden = visible > 0;
+
+    if (countEl) {
+      if (visible === 0) {
+        countEl.textContent = state.query
+          ? `Sin resultados para «${queryInput?.value.trim() ?? state.query}»`
+          : 'No hay productos con estos filtros.';
+      } else {
+        const label = visible === 1 ? 'producto' : 'productos';
+        const filter =
+          state.category === 'all'
+            ? 'en toda la carta'
+            : state.category === 'featured'
+              ? 'destacados'
+              : 'en esta categoría';
+        countEl.textContent = `${visible} ${label} ${filter}`;
+      }
+    }
+
+    if (clearBtn && queryInput) clearBtn.hidden = queryInput.value.length === 0;
+    if (updateHash) syncHash();
+  }
+
+  chips.forEach((chip) => {
+    chip.addEventListener('click', () => {
+      state.category = chip.dataset.cat ?? 'all';
+      syncChips();
+      apply({ updateHash: true });
+    });
+  });
+
+  queryInput?.addEventListener('input', () => {
+    state.query = normalize(queryInput.value.trim());
+    apply();
+  });
+
+  clearBtn?.addEventListener('click', () => {
+    if (!queryInput) return;
+    queryInput.value = '';
+    state.query = '';
+    apply();
+    queryInput.focus();
+  });
+
+  hideOffInput?.addEventListener('change', () => {
+    state.hideOff = hideOffInput.checked;
+    apply();
+  });
+
+  resetBtn?.addEventListener('click', () => {
+    state.category = 'all';
+    state.query = '';
+    state.hideOff = false;
+    if (queryInput) queryInput.value = '';
+    if (hideOffInput) hideOffInput.checked = false;
+    syncChips();
+    apply({ updateHash: true });
+    document.getElementById('menu-query')?.scrollIntoView({ block: 'center' });
+  });
+
+  // Enlace directo por categoría (por ejemplo /carta#cafe)
+  const initial = window.location.hash.replace('#', '');
+  if (categoryIds.includes(initial)) {
+    state.category = initial;
+    syncChips();
+  }
+  if (hideOffInput) state.hideOff = hideOffInput.checked;
+  apply();
+</script>

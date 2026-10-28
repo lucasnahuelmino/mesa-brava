@@ -1,0 +1,184 @@
+---
+import { Image } from 'astro:assets';
+import hero from '../../assets/images/hero-mesa-brava.jpg';
+import { SITE } from '../../config/site';
+---
+
+<section class="hero">
+  <div class="shell--wide hero__inner">
+    <div class="hero__media media" data-fallback="foto de portada">
+      <Image
+        src={hero}
+        alt="Mesa servida con pastas, vinos y platos para compartir vista desde arriba"
+        widths={[640, 960, 1400]}
+        sizes="(min-width: 900px) 56vw, 100vw"
+        loading="eager"
+        fetchpriority="high"
+        decoding="async"
+        class="hero__img"
+      />
+      <span class="hero__stamp" aria-hidden="true">Platos para compartir</span>
+    </div>
+
+    <div class="hero__copy">
+      <p class="eyebrow eyebrow--light">Restaurante y cafetería · demo</p>
+      <h1 class="hero__title">
+        Buena comida.<br />
+        Café sin apuro.<br />
+        <em>Mesa compartida</em>
+      </h1>
+      <p class="hero__lede">
+        Cocina de autor informal, café de especialidad tostado en semana y pastelería que sale del
+        horno todas las mañanas. Vení con tiempo, quedate lo que haga falta.
+      </p>
+
+      <div class="hero__actions">
+        <a class="btn btn--cream" href="/carta">Ver la carta</a>
+        <a class="btn btn--outline-light" href="/reservas">Reservar mesa</a>
+      </div>
+
+      <dl class="hero__meta">
+        <div>
+          <dt>Horarios</dt>
+          <dd>Lun a dom · 08:00 – 23:00</dd>
+        </div>
+        <div>
+          <dt>Dirección</dt>
+          <dd>{SITE.address.street} — dato ficticio</dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    background: var(--black);
+    color: var(--cream);
+    padding-bottom: clamp(2.5rem, 6vw, 4rem);
+    overflow: hidden;
+  }
+
+  .hero__inner {
+    display: grid;
+  }
+
+  .hero__media {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    background: var(--black);
+    /* a sangre en móvil, alineada al shell en escritorio */
+    width: calc(100% + (var(--gutter) * 2));
+    margin-inline: calc(var(--gutter) * -1);
+  }
+  .hero__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: saturate(1.04) contrast(1.03);
+  }
+  .hero__media::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(36, 35, 34, 0.35) 0%, transparent 38%, rgba(36, 35, 34, 0.55) 100%);
+    pointer-events: none;
+  }
+
+  .hero__stamp {
+    position: absolute;
+    z-index: 1;
+    right: 1rem;
+    top: 1rem;
+    padding: 0.5rem 0.9rem;
+    border: 1.5px solid rgba(245, 240, 230, 0.75);
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--cream);
+    background: rgba(36, 35, 34, 0.45);
+    backdrop-filter: blur(4px);
+    transform: rotate(-4deg);
+  }
+
+  .hero__copy {
+    padding: clamp(2rem, 5vw, 3.5rem) 0 0;
+    display: grid;
+    gap: 1.25rem;
+    align-content: center;
+  }
+
+  .hero__title {
+    font-size: clamp(2.5rem, 1.4rem + 6.5vw, 5rem);
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+    font-weight: 600;
+  }
+  .hero__title em {
+    font-style: italic;
+    color: #e8b4ac;
+  }
+
+  .hero__lede {
+    font-size: clamp(1rem, 0.95rem + 0.35vw, 1.12rem);
+    line-height: 1.65;
+    color: rgba(245, 240, 230, 0.82);
+    max-width: 52ch;
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.35rem;
+  }
+
+  .hero__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem 2.5rem;
+    margin-top: 1.25rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(245, 240, 230, 0.22);
+  }
+  .hero__meta dt {
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--olive-on-dark);
+    margin-bottom: 0.3rem;
+    font-weight: 700;
+  }
+  .hero__meta dd {
+    margin: 0;
+    font-size: 0.92rem;
+    color: rgba(245, 240, 230, 0.9);
+  }
+
+  @media (min-width: 900px) {
+    .hero__inner {
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+      align-items: stretch;
+      gap: clamp(2rem, 4vw, 4rem);
+      min-height: min(76vh, 720px);
+    }
+    .hero__media {
+      aspect-ratio: auto;
+      order: 2;
+      width: 100%;
+      margin-inline: 0;
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    }
+    .hero__copy {
+      padding: clamp(3rem, 7vh, 5rem) 0 0;
+      order: 1;
+    }
+    .hero__stamp {
+      right: 1.5rem;
+      top: 1.5rem;
+      font-size: 0.72rem;
+    }
+  }
+</style>

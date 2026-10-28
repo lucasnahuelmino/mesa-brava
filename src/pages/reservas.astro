@@ -1,0 +1,434 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ReservationForm from '../components/reserve/ReservationForm.astro';
+import { Image } from 'astro:assets';
+import { SITE } from '../config/site';
+import { waContactLink } from '../lib/whatsapp';
+import heroImg from '../assets/images/editorial-reservas.jpg';
+
+const title = `Reservas y contacto · ${SITE.name}`;
+const description =
+  'Solicitá una mesa en MESA BRAVA (demo): formulario con validación de fecha, hora y cantidad de personas, horarios, dirección ficticia y contacto por WhatsApp.';
+
+const whatsappUrl = waContactLink();
+---
+
+<BaseLayout title={title} description={description} path="/reservas">
+  <section class="reserve-hero">
+    <div class="shell reserve-hero__inner">
+      <div class="reserve-hero__copy">
+        <p class="eyebrow">Reservas y contacto</p>
+        <h1 class="reserve-hero__title">Reservá tu mesa</h1>
+        <p class="lede">
+          Completá los datos y te preparamos el mensaje para enviarlo por WhatsApp. Vos revisás,
+          enviás y nosotros confirmamos si hay lugar: <strong>nada queda reservado automáticamente</strong>.
+        </p>
+        <ul class="reserve-hero__steps">
+          <li><span>01</span> Completás el formulario</li>
+          <li><span>02</span> Revisás el mensaje armado</li>
+          <li><span>03</span> Lo enviás por WhatsApp y esperás la confirmación</li>
+        </ul>
+      </div>
+      <figure class="reserve-hero__media media" data-fallback="el salón">
+        <Image
+          src={heroImg}
+          alt="Mesas preparadas del restaurante vistas desde el salón"
+          widths={[520, 860]}
+          sizes="(min-width: 860px) 40vw, 100vw"
+          loading="eager"
+          decoding="async"
+        />
+      </figure>
+    </div>
+  </section>
+
+  <section class="reserve" aria-labelledby="form-title">
+    <div class="shell reserve__grid">
+      <div class="reserve__form">
+        <h2 id="form-title" class="section-title reserve__title">Solicitud de mesa</h2>
+        <ReservationForm />
+      </div>
+
+      <aside class="info" aria-label="Información del local">
+        <div class="info__block">
+          <h2 class="info__title">Horarios</h2>
+          <ul class="info__hours">
+            {
+              SITE.hours.map((row) => (
+                <li>
+                  <span>{row.days}</span>
+                  <strong>{row.hours}</strong>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+
+        <div class="info__block">
+          <h2 class="info__title">Contacto</h2>
+          <address class="info__address">
+            {SITE.address.street}<br />
+            {SITE.address.city}<br />
+            <span class="info__muted">{SITE.address.note}</span>
+          </address>
+          <ul class="info__list">
+            <li>
+              <span>Teléfono</span>
+              <a href={`tel:${SITE.phone.tel}`}>{SITE.phone.display}</a>
+            </li>
+            <li>
+              <span>Correo</span>
+              <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
+            </li>
+            <li>
+              <span>WhatsApp</span>
+              <a
+                href={`https://wa.me/${SITE.whatsapp.number}`}
+                target="_blank"
+                rel="noopener noreferrer">{SITE.whatsapp.display}</a
+              >
+            </li>
+          </ul>
+          <a
+            class="btn btn--block info__wa"
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Escribir por WhatsApp <span aria-hidden="true">↗</span>
+          </a>
+          <p class="info__muted info__small">{SITE.whatsapp.demoLabel}</p>
+        </div>
+
+        <div class="info__block">
+          <h2 class="info__title">Redes</h2>
+          <ul class="info__social">
+            {
+              SITE.socials.map((social) => (
+                <li>
+                  <a
+                    href={social.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={`Enlace de demostración (${social.label})`}
+                  >
+                    {social.label} — {social.handle}
+                    <span class="visually-hidden">
+                      (enlace de demostración, se abre en una pestaña nueva)
+                    </span>
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+          <p class="info__muted info__small">
+            Configurables en <code>src/config/site.ts</code>.
+          </p>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="location" aria-labelledby="location-title">
+    <div class="shell location__inner">
+      <div class="location__copy">
+        <p class="eyebrow eyebrow--light">Ubicación</p>
+        <h2 id="location-title" class="section-title location__title">Cómo llegar</h2>
+        <p class="location__address">
+          {SITE.address.street}<br />
+          {SITE.address.city}<br />
+          {SITE.address.country}
+        </p>
+        <p class="location__note demo-note demo-note--light">
+          Dirección ficticia usada sólo en esta demostración. No corresponde a un local real, por lo
+          que no incluimos mapa: preferimos no mostrar una ubicación que no existe.
+        </p>
+        <ul class="location__list">
+          <li>
+            <strong>Subte</strong>
+            <span>A 4 cuadras de cualquier estación del ramal (dato ilustrativo)</span>
+          </li>
+          <li>
+            <strong>Estacionamiento</strong>
+            <span>Vereda amplia y bicicletero frente al local (dato ilustrativo)</span>
+          </li>
+          <li>
+            <strong>Accesibilidad</strong>
+            <span>Ingreso a nivel de vereda y baño adaptado (dato ilustrativo)</span>
+          </li>
+        </ul>
+      </div>
+
+      <figure class="location__sketch" aria-labelledby="sketch-caption">
+        <svg viewBox="0 0 400 300" role="img" aria-label="Croquis ilustrativo de cuadras con un marcador sobre el local">
+          <rect width="400" height="300" fill="#F5F0E6" />
+          <g stroke="#777A50" stroke-width="2" opacity="0.55">
+            <path d="M0 70h400M0 150h400M0 230h400M80 0v300M200 0v300M320 0v300" />
+          </g>
+          <g fill="#EBE3D3">
+            <rect x="12" y="14" width="56" height="44" />
+            <rect x="94" y="14" width="94" height="44" />
+            <rect x="214" y="14" width="94" height="44" />
+            <rect x="334" y="14" width="54" height="44" />
+            <rect x="12" y="84" width="56" height="54" />
+            <rect x="94" y="84" width="94" height="54" />
+            <rect x="214" y="84" width="94" height="54" />
+            <rect x="334" y="84" width="54" height="54" />
+            <rect x="12" y="164" width="56" height="54" />
+            <rect x="94" y="164" width="94" height="54" />
+            <rect x="334" y="164" width="54" height="54" />
+            <rect x="12" y="244" width="56" height="44" />
+            <rect x="94" y="244" width="94" height="44" />
+            <rect x="214" y="244" width="94" height="44" />
+            <rect x="334" y="244" width="54" height="44" />
+          </g>
+          <rect x="214" y="164" width="94" height="54" fill="#54252C" />
+          <circle cx="261" cy="150" r="15" fill="#54252C" stroke="#F5F0E6" stroke-width="3" />
+          <text x="261" y="156" text-anchor="middle" font-family="Georgia, serif" font-size="15" font-weight="700" fill="#F5F0E6">MB</text>
+          <text x="261" y="196" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#F5F0E6">MESA BRAVA</text>
+        </svg>
+        <figcaption id="sketch-caption" class="location__caption">
+          Croquis ilustrativo, no es un mapa real ni una ubicación verificada.
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* ---------------- hero ---------------- */
+  .reserve-hero {
+    padding: clamp(2.5rem, 6vw, 4.5rem) 0 clamp(2rem, 5vw, 3rem);
+    background: var(--cream);
+    border-bottom: 1px solid var(--line);
+  }
+  .reserve-hero__inner {
+    display: grid;
+    gap: clamp(1.75rem, 4vw, 3rem);
+    align-items: center;
+  }
+  .reserve-hero__copy {
+    display: grid;
+    gap: 1rem;
+  }
+  .reserve-hero__title {
+    font-size: clamp(2.4rem, 1.5rem + 4.5vw, 4.2rem);
+    letter-spacing: -0.03em;
+  }
+  .reserve-hero__steps {
+    display: grid;
+    gap: 0.6rem;
+    margin-top: 0.5rem;
+    font-size: 0.93rem;
+    color: var(--ink-soft);
+  }
+  .reserve-hero__steps li {
+    display: flex;
+    gap: 0.7rem;
+    align-items: baseline;
+  }
+  .reserve-hero__steps span {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: var(--olive-dark);
+  }
+  .reserve-hero__media {
+    margin: 0;
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+
+  /* ---------------- formulario + info ---------------- */
+  .reserve {
+    padding: clamp(2.5rem, 6vw, 4.5rem) 0;
+  }
+  .reserve__grid {
+    display: grid;
+    gap: clamp(2rem, 5vw, 3.5rem);
+    align-items: start;
+  }
+  .reserve__title {
+    font-size: clamp(1.9rem, 1.4rem + 2.5vw, 2.8rem);
+    margin-bottom: 1.25rem;
+  }
+
+  .info {
+    display: grid;
+    gap: 1.5rem;
+  }
+  .info__block {
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: clamp(1.1rem, 3vw, 1.5rem);
+    display: grid;
+    gap: 0.85rem;
+  }
+  .info__title {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--olive-dark);
+  }
+  .info__hours {
+    display: grid;
+    gap: 0.55rem;
+    font-size: 0.92rem;
+  }
+  .info__hours li {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    border-bottom: 1px dotted var(--line-strong);
+    padding-bottom: 0.45rem;
+  }
+  .info__hours strong {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .info__address {
+    font-style: normal;
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+  .info__muted {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+    margin-top: 0.25rem;
+  }
+  .info__small {
+    font-size: 0.76rem;
+  }
+  .info__list {
+    display: grid;
+    gap: 0.55rem;
+    font-size: 0.92rem;
+  }
+  .info__list li {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: baseline;
+  }
+  .info__list span {
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .info__list a {
+    font-weight: 600;
+    text-align: right;
+  }
+  .info__wa {
+    margin-top: 0.35rem;
+  }
+  .info__social {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 0.92rem;
+  }
+  .info__social a {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    font-weight: 600;
+  }
+  .info__block code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.76rem;
+    background: var(--cream-deep);
+    padding: 0.1rem 0.35rem;
+    border-radius: 3px;
+  }
+
+  /* ---------------- ubicación ---------------- */
+  .location {
+    background: var(--black);
+    color: var(--cream);
+    padding: clamp(3rem, 7vw, 5rem) 0;
+  }
+  .location__inner {
+    display: grid;
+    gap: clamp(2rem, 5vw, 3.5rem);
+    align-items: center;
+  }
+  .location__copy {
+    display: grid;
+    gap: 1rem;
+  }
+  .location__title {
+    font-size: clamp(1.9rem, 1.4rem + 2.5vw, 2.8rem);
+  }
+  .location__address {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: rgba(245, 240, 230, 0.9);
+  }
+  .location__list {
+    display: grid;
+    gap: 0.85rem;
+    margin-top: 0.5rem;
+  }
+  .location__list li {
+    display: grid;
+    gap: 0.2rem;
+    padding-top: 0.85rem;
+    border-top: 1px solid rgba(245, 240, 230, 0.2);
+    font-size: 0.92rem;
+  }
+  .location__list strong {
+    font-size: 0.75rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--olive-on-dark);
+  }
+  .location__list span {
+    color: rgba(245, 240, 230, 0.78);
+  }
+
+  .location__sketch {
+    margin: 0;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    border: 1px solid rgba(245, 240, 230, 0.25);
+    background: var(--cream);
+  }
+  .location__sketch svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .location__caption {
+    padding: 0.75rem 1rem;
+    font-size: 0.78rem;
+    background: var(--cream);
+    color: var(--ink-soft);
+    border-top: 1px solid var(--line);
+  }
+
+  @media (min-width: 900px) {
+    .reserve-hero__inner {
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    }
+    .reserve__grid {
+      grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+      gap: clamp(2rem, 4vw, 3.5rem);
+    }
+    .info {
+      position: sticky;
+      top: calc(var(--header-h) + 1.5rem);
+    }
+    .location__inner {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: clamp(2.5rem, 5vw, 4rem);
+    }
+  }
+</style>

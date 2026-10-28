@@ -1,0 +1,58 @@
+---
+import '../styles/global.css';
+import Seo from '../components/site/Seo.astro';
+import Header from '../components/site/Header.astro';
+import Footer from '../components/site/Footer.astro';
+import CartDrawer from '../components/cart/CartDrawer.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  path: string;
+}
+
+const { title, description, path } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es-AR">
+  <head>
+    <Seo title={title} description={description} path={path} />
+  </head>
+  <body>
+    <a class="skip-link" href="#contenido">Saltar al contenido principal</a>
+    <Header />
+    <main id="contenido">
+      <slot />
+    </main>
+    <Footer />
+    <CartDrawer />
+
+    <script>
+      // Respaldo ante fallos de carga de imágenes: conserva el espacio
+      // y muestra un mensaje claro en lugar de un ícono roto.
+      document.addEventListener(
+        'error',
+        (event) => {
+          const target = event.target;
+          if (!(target instanceof HTMLImageElement)) return;
+          if (target.dataset.fallbackDone === 'true') return;
+          target.dataset.fallbackDone = 'true';
+
+          const media = target.closest('.media');
+          if (media) {
+            media.classList.add('media--fallback');
+            return;
+          }
+
+          target.removeAttribute('srcset');
+          target.src = '/images/fallback.svg';
+          if (!target.getAttribute('alt')) {
+            target.alt = 'Imagen no disponible';
+          }
+        },
+        true,
+      );
+    </script>
+  </body>
+</html>

@@ -1,0 +1,23 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/home/Hero.astro';
+import Ticker from '../components/site/Ticker.astro';
+import Featured from '../components/home/Featured.astro';
+import CoffeeAndPastry from '../components/home/CoffeeAndPastry.astro';
+import Local from '../components/home/Local.astro';
+import HoursAndReserve from '../components/home/HoursAndReserve.astro';
+import { SITE } from '../config/site';
+
+const title = `${SITE.name} · ${SITE.descriptor}`;
+const description =
+  'Restaurante y cafetería de demo: cocina de autor informal, café de especialidad y pastelería artesanal. Mirá la carta, armá tu pedido por WhatsApp y solicitá tu mesa.';
+---
+
+<BaseLayout title={title} description={description} path="/">
+  <Hero />
+  <Ticker />
+  <Featured />
+  <CoffeeAndPastry />
+  <Local />
+  <HoursAndReserve />
+</BaseLayout>

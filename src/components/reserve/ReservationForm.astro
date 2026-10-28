@@ -1,0 +1,439 @@
+---
+import { SITE } from '../../config/site';
+---
+
+<p class="demo-note reserve__intro">
+  <strong>Sin backend.</strong> Este formulario no guarda datos en ningún servidor: al continuar,
+  preparamos un mensaje con tus datos para que lo envíes por WhatsApp. La mesa queda reservada
+  sólo cuando el restaurante confirma la disponibilidad.
+</p>
+
+<form class="form" data-reservation-form novalidate>
+  <div class="form__summary" data-errors-summary role="alert" tabindex="-1" hidden>
+    <h2 class="form__summary-title">Revisá estos datos</h2>
+    <ul data-errors-list></ul>
+  </div>
+
+  <div class="form__grid">
+    <div class="field">
+      <label class="field__label" for="res-nombre">Nombre y apellido *</label>
+      <input
+        class="input"
+        id="res-nombre"
+        name="nombre"
+        type="text"
+        autocomplete="name"
+        required
+        maxlength="60"
+        placeholder="Ej.: Lucía Fernández"
+        aria-describedby="res-nombre-error"
+      />
+      <p class="field__error" id="res-nombre-error" data-error-for="nombre" hidden></p>
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="res-contacto">Teléfono o correo *</label>
+      <input
+        class="input"
+        id="res-contacto"
+        name="contacto"
+        type="text"
+        autocomplete="tel"
+        required
+        placeholder="Ej.: 11 5555-0000 o lucia@correo.com"
+        aria-describedby="res-contacto-hint res-contacto-error"
+      />
+      <p class="field__hint" id="res-contacto-hint">Lo usamos sólo para responder la solicitud.</p>
+      <p class="field__error" id="res-contacto-error" data-error-for="contacto" hidden></p>
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="res-fecha">Fecha *</label>
+      <input
+        class="input"
+        id="res-fecha"
+        name="fecha"
+        type="date"
+        required
+        aria-describedby="res-fecha-error"
+      />
+      <p class="field__error" id="res-fecha-error" data-error-for="fecha" hidden></p>
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="res-hora">Hora *</label>
+      <select class="select" id="res-hora" name="hora" required aria-describedby="res-hora-error">
+        <option value="">Elegí un horario</option>
+        {
+          SITE.reservationSlots.map((slot) => (
+            <option value={slot}>
+              {slot}
+            </option>
+          ))
+        }
+      </select>
+      <p class="field__error" id="res-hora-error" data-error-for="hora" hidden></p>
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="res-personas">Cantidad de personas *</label>
+      <select
+        class="select"
+        id="res-personas"
+        name="personas"
+        required
+        aria-describedby="res-personas-hint res-personas-error"
+      >
+        <option value="">¿Cuántos somos?</option>
+        {
+          Array.from({ length: SITE.maxPartySize }, (_, index) => index + 1).map((count) => (
+            <option value={String(count)}>
+              {count} {count === 1 ? 'persona' : 'personas'}
+            </option>
+          ))
+        }
+      </select>
+      <p class="field__hint" id="res-personas-hint">
+        Para grupos de más de {SITE.maxPartySize}, escribinos por WhatsApp.
+      </p>
+      <p class="field__error" id="res-personas-error" data-error-for="personas" hidden></p>
+    </div>
+
+    <div class="field field--full">
+      <label class="field__label" for="res-comentarios">Comentarios (opcional)</label>
+      <textarea
+        class="textarea"
+        id="res-comentarios"
+        name="comentarios"
+        maxlength="300"
+        placeholder="Celiaquía, sillas para bebés, mesa junto a la ventana…"
+        aria-describedby="res-comentarios-hint res-comentarios-error"></textarea>
+      <p class="field__hint" id="res-comentarios-hint">
+        Máximo 300 caracteres. <span data-counter>0/300</span>
+      </p>
+      <p class="field__error" id="res-comentarios-error" data-error-for="comentarios" hidden></p>
+    </div>
+  </div>
+
+  <div class="form__actions">
+    <button class="btn" type="submit">
+      Revisar la solicitud <span aria-hidden="true">→</span>
+    </button>
+    <p class="form__note">
+      Al continuar no se envía nada todavía: vas a ver el resumen y decidís si lo mandás.
+    </p>
+  </div>
+</form>
+
+<section class="result" data-result tabindex="-1" hidden aria-live="polite">
+  <p class="eyebrow">Solicitud lista para enviar</p>
+  <h2 class="result__title">Revisá el mensaje</h2>
+  <p class="result__lead">
+    Estos son los datos que van a llegar por WhatsApp. Si algo está mal, volvé atrás y corregilo.
+  </p>
+
+  <dl class="result__data" data-result-data></dl>
+
+  <pre class="result__preview" data-result-preview></pre>
+
+  <p class="demo-note">
+    Esta demo no confirma reservas: al abrir WhatsApp sólo enviás una solicitud. El restaurante
+    tiene que responder para confirmar la mesa.
+  </p>
+
+  <div class="result__actions">
+    <a class="btn" data-result-link href="#" target="_blank" rel="noopener noreferrer">
+      Enviar solicitud por WhatsApp <span aria-hidden="true">↗</span>
+    </a>
+    <button class="btn btn--outline" type="button" data-result-edit>Editar los datos</button>
+  </div>
+</section>
+
+<script>
+  import { FIELD_LABELS, validateReservation } from '../../lib/validation';
+  import type { ReservationErrors, ReservationInput } from '../../lib/validation';
+  import { buildReservationMessage, waLink } from '../../lib/whatsapp';
+  import { formatLongDate, todayISO } from '../../lib/format';
+
+  const form = document.querySelector<HTMLFormElement>('[data-reservation-form]');
+  const summary = document.querySelector<HTMLElement>('[data-errors-summary]');
+  const summaryList = document.querySelector<HTMLElement>('[data-errors-list]');
+  const result = document.querySelector<HTMLElement>('[data-result]');
+  const resultData = document.querySelector<HTMLElement>('[data-result-data]');
+  const resultPreview = document.querySelector<HTMLElement>('[data-result-preview]');
+  const resultLink = document.querySelector<HTMLAnchorElement>('[data-result-link]');
+  const resultEdit = document.querySelector<HTMLButtonElement>('[data-result-edit]');
+  const dateInput = document.querySelector<HTMLInputElement>('#res-fecha');
+  const comments = document.querySelector<HTMLTextAreaElement>('#res-comentarios');
+  const counter = document.querySelector<HTMLElement>('[data-counter]');
+
+  const FIELDS = Object.keys(FIELD_LABELS) as (keyof ReservationInput)[];
+  const ESCAPE_MAP: Record<string, string> = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+  };
+  const escapeHtml = (value: string) =>
+    value.replace(/[&<>"']/g, (char) => ESCAPE_MAP[char] ?? char);
+
+  const prefersReducedMotion = () =>
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const smoothBehavior = (): ScrollBehavior => (prefersReducedMotion() ? 'auto' : 'smooth');
+
+  if (dateInput) dateInput.min = todayISO();
+
+  let attempted = false;
+
+  function readInput(): ReservationInput {
+    const data = new FormData(form ?? undefined);
+    return {
+      nombre: String(data.get('nombre') ?? ''),
+      contacto: String(data.get('contacto') ?? ''),
+      fecha: String(data.get('fecha') ?? ''),
+      hora: String(data.get('hora') ?? ''),
+      personas: String(data.get('personas') ?? ''),
+      comentarios: String(data.get('comentarios') ?? ''),
+    };
+  }
+
+  function paintField(field: keyof ReservationInput, message?: string) {
+    const input = form?.querySelector<HTMLElement>(`[name="${field}"]`);
+    const error = document.querySelector<HTMLElement>(`[data-error-for="${field}"]`);
+    if (error) {
+      error.textContent = message ?? '';
+      error.hidden = !message;
+    }
+    if (input) {
+      if (message) input.setAttribute('aria-invalid', 'true');
+      else input.removeAttribute('aria-invalid');
+    }
+  }
+
+  function showErrors(errors: ReservationErrors) {
+    FIELDS.forEach((field) => paintField(field, errors[field]));
+
+    const entries = FIELDS.filter((field) => errors[field]);
+    if (!summary || !summaryList) return;
+
+    if (entries.length === 0) {
+      summary.hidden = true;
+      summaryList.innerHTML = '';
+      return;
+    }
+
+    summaryList.innerHTML = entries
+      .map((field) => {
+        const target = form?.querySelector<HTMLElement>(`[name="${field}"]`);
+        const id = target?.id ?? '';
+        return `<li><a href="#${id}">${FIELD_LABELS[field]}: ${escapeHtml(
+          errors[field] as string,
+        )}</a></li>`;
+      })
+      .join('');
+    summary.hidden = false;
+    summary.focus();
+  }
+
+  function showResult(input: ReservationInput) {
+    if (!result || !resultData || !resultPreview || !resultLink) return;
+
+    const rows: Array<[string, string]> = [
+      ['Nombre', input.nombre.trim()],
+      ['Contacto', input.contacto.trim()],
+      ['Fecha', formatLongDate(input.fecha)],
+      ['Hora', input.hora],
+      ['Personas', input.personas],
+      ['Comentarios', input.comentarios.trim() || '—'],
+    ];
+
+    resultData.innerHTML = rows
+      .map(
+        ([label, value]) =>
+          `<div class="result__row"><dt>${label}</dt><dd>${escapeHtml(value)}</dd></div>`,
+      )
+      .join('');
+
+    const message = buildReservationMessage(input);
+    resultPreview.textContent = message;
+    resultLink.href = waLink(message);
+
+    if (form) form.hidden = true;
+    result.hidden = false;
+    result.scrollIntoView({ block: 'start', behavior: smoothBehavior() });
+    result.focus();
+  }
+
+  form?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    attempted = true;
+    const input = readInput();
+    const errors = validateReservation(input);
+    showErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+    showResult(input);
+  });
+
+  /* Re-validación en vivo una vez que se intentó enviar. */
+  FIELDS.forEach((field) => {
+    const input = form?.querySelector<HTMLElement>(`[name="${field}"]`);
+    const revalidate = () => {
+      if (!attempted) return;
+      const errors = validateReservation(readInput());
+      paintField(field, errors[field]);
+    };
+    input?.addEventListener('change', revalidate);
+    input?.addEventListener('blur', revalidate);
+  });
+
+  comments?.addEventListener('input', () => {
+    if (counter) counter.textContent = `${comments.value.length}/300`;
+  });
+
+  resultEdit?.addEventListener('click', () => {
+    if (result) result.hidden = true;
+    if (form) {
+      form.hidden = false;
+      form.scrollIntoView({ block: 'start', behavior: smoothBehavior() });
+      form.querySelector<HTMLElement>('[name="nombre"]')?.focus();
+    }
+  });
+</script>
+
+<style>
+  .reserve__intro {
+    margin-bottom: 1.5rem;
+  }
+
+  .form {
+    display: grid;
+    gap: 1.5rem;
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: clamp(1.25rem, 4vw, 2.25rem);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .form__summary {
+    border: 2px solid #a1202b;
+    background: #fff6f6;
+    border-radius: var(--radius);
+    padding: 1rem 1.15rem;
+  }
+  .form__summary:focus-visible {
+    outline: 3px solid #a1202b;
+    outline-offset: 2px;
+  }
+  .form__summary-title {
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #7d1720;
+    margin-bottom: 0.5rem;
+  }
+  .form__summary ul {
+    display: grid;
+    gap: 0.35rem;
+    font-size: 0.9rem;
+  }
+  .form__summary a {
+    color: #7d1720;
+  }
+
+  .form__grid {
+    display: grid;
+    gap: 1.15rem;
+  }
+
+  .form__actions {
+    display: grid;
+    gap: 0.75rem;
+    justify-items: start;
+    border-top: 1px solid var(--line);
+    padding-top: 1.25rem;
+  }
+  .form__note {
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    max-width: 46ch;
+  }
+
+  .result {
+    display: grid;
+    gap: 1rem;
+    background: var(--cream);
+    border: 2px solid var(--olive);
+    border-radius: var(--radius-lg);
+    padding: clamp(1.25rem, 4vw, 2.25rem);
+  }
+  .result:focus-visible {
+    outline: 3px solid var(--olive);
+    outline-offset: 3px;
+  }
+  .result__title {
+    font-size: clamp(1.7rem, 1.2rem + 2vw, 2.4rem);
+  }
+  .result__lead {
+    color: var(--ink-soft);
+    max-width: 56ch;
+  }
+  .result__data {
+    display: grid;
+    gap: 0.5rem;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    padding: 1rem 0;
+  }
+  .result__row {
+    display: grid;
+    grid-template-columns: 8.5rem minmax(0, 1fr);
+    gap: 0.75rem;
+    font-size: 0.93rem;
+  }
+  .result__row dt {
+    font-weight: 700;
+    color: var(--ink-soft);
+    font-size: 0.8rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding-top: 0.15rem;
+  }
+  .result__row dd {
+    margin: 0;
+  }
+  .result__preview {
+    margin: 0;
+    padding: 1rem;
+    background: var(--black);
+    color: var(--cream);
+    border-radius: var(--radius);
+    font-size: 0.85rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+  .result__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  @media (min-width: 700px) {
+    .form__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: 1.25rem;
+    }
+    .field--full {
+      grid-column: 1 / -1;
+    }
+    .form__actions {
+      grid-template-columns: auto minmax(0, 1fr);
+      align-items: center;
+      column-gap: 1.5rem;
+    }
+  }
+</style>

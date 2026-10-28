@@ -1,0 +1,74 @@
+---
+const phrases = [
+  'Cocina de autor informal',
+  'Café de especialidad',
+  'Pastelería artesanal',
+  'Platos para compartir',
+  'Mesa compartida',
+];
+---
+
+<div class="ticker" aria-hidden="true">
+  <div class="ticker__track">
+    {
+      [0, 1].map(() => (
+        <span class="ticker__group">
+          {phrases.map((phrase) => (
+            <>
+              <span class="ticker__item">{phrase}</span>
+              <span class="ticker__dot">✳</span>
+            </>
+          ))}
+        </span>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .ticker {
+    background: var(--olive-dark);
+    color: var(--white);
+    overflow: hidden;
+    padding: 0.7rem 0;
+    border-block: 1px solid rgba(36, 35, 34, 0.16);
+  }
+  .ticker__track {
+    display: flex;
+    width: max-content;
+    animation: ticker 34s linear infinite;
+  }
+  .ticker__group {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding-right: 1.5rem;
+  }
+  .ticker__item {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .ticker__dot {
+    opacity: 0.7;
+  }
+  @keyframes ticker {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ticker__track {
+      animation: none;
+      width: auto;
+      flex-wrap: wrap;
+      justify-content: center;
+      row-gap: 0.35rem;
+    }
+    .ticker__group:last-child {
+      display: none;
+    }
+  }
+</style>

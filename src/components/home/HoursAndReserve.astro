@@ -1,0 +1,212 @@
+---
+import { SITE } from '../../config/site';
+import { waContactLink } from '../../lib/whatsapp';
+
+const whatsappUrl = waContactLink();
+
+const steps = [
+  'Elegí los platos en la carta y armá el pedido.',
+  'Revisá cantidades y subtotal en el resumen.',
+  'Se abre WhatsApp con el mensaje escrito para que lo envíes.',
+];
+---
+
+<section class="hours" id="horarios" aria-labelledby="hours-title">
+  <div class="shell hours__inner">
+    <div class="hours__table">
+      <p class="eyebrow eyebrow--light">Horarios de atención</p>
+      <h2 id="hours-title" class="section-title hours__title">Cuándo abrimos</h2>
+
+      <ul class="hours__list">
+        {
+          SITE.hours.map((row) => (
+            <li>
+              <span class="hours__days">
+                {row.days}
+                {row.note && <em class="hours__note">{row.note}</em>}
+              </span>
+              <span class="hours__dots" aria-hidden="true" />
+              <span class="hours__value">{row.hours}</span>
+            </li>
+          ))
+        }
+      </ul>
+
+      <p class="hours__foot">
+        Horarios editables en <code>src/config/site.ts</code>. Datos de demostración.
+      </p>
+    </div>
+
+    <div class="hours__card">
+      <p class="eyebrow">Reservas y pedidos</p>
+      <h2 class="hours__card-title">Reservá tu mesa</h2>
+      <p class="hours__card-text">
+        Armás la solicitud con fecha, hora y cantidad de personas. Nos llega por WhatsApp y te
+        confirmamos disponibilidad: <strong>la mesa queda reservada cuando respondemos</strong>.
+      </p>
+
+      <ol class="hours__steps">
+        {
+          steps.map((step, index) => (
+            <li>
+              <span class="hours__step-index" aria-hidden="true">
+                0{index + 1}
+              </span>
+              <span>{step}</span>
+            </li>
+          ))
+        }
+      </ol>
+
+      <div class="hours__actions">
+        <a class="btn btn--block" href="/reservas">Solicitar una reserva</a>
+        <a
+          class="btn btn--outline btn--block"
+          href={whatsappUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Pedidos y consultas por WhatsApp
+        </a>
+      </div>
+      <p class="hours__demo">
+        {SITE.whatsapp.demoLabel} Abrimos WhatsApp con un mensaje de ejemplo: no hay cobro ni
+        confirmación automática en este sitio.
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hours {
+    background: var(--bordeaux);
+    color: var(--cream);
+    padding: clamp(3.5rem, 8vw, 6rem) 0;
+  }
+
+  .hours__inner {
+    display: grid;
+    gap: clamp(2.5rem, 6vw, 4rem);
+  }
+
+  .hours__title {
+    margin-top: 0.75rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .hours__list {
+    display: grid;
+    gap: 1rem;
+  }
+  .hours__list li {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid rgba(245, 240, 230, 0.18);
+  }
+  .hours__days {
+    display: grid;
+    gap: 0.2rem;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  .hours__note {
+    font-style: normal;
+    font-size: 0.82rem;
+    font-weight: 400;
+    color: rgba(245, 240, 230, 0.72);
+  }
+  .hours__dots {
+    flex: 1 1 40px;
+    min-width: 30px;
+    border-bottom: 1.5px dotted rgba(245, 240, 230, 0.45);
+    transform: translateY(-0.3em);
+  }
+  .hours__value {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .hours__foot {
+    margin-top: 1.5rem;
+    font-size: 0.8rem;
+    color: rgba(245, 240, 230, 0.65);
+  }
+  .hours__foot code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.78rem;
+    /* texto en crema pleno: el fondo translúcido rebaja el contraste */
+    color: var(--cream);
+    background: rgba(245, 240, 230, 0.14);
+    padding: 0.1rem 0.35rem;
+    border-radius: 3px;
+  }
+
+  .hours__card {
+    background: var(--cream);
+    color: var(--ink);
+    border-radius: var(--radius-lg);
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    display: grid;
+    gap: 1rem;
+    align-content: start;
+    box-shadow: var(--shadow-lg);
+  }
+  .hours__card-title {
+    font-size: clamp(1.7rem, 1.2rem + 2vw, 2.4rem);
+  }
+  .hours__card-text {
+    color: var(--ink-soft);
+    font-size: 0.95rem;
+    line-height: 1.65;
+  }
+  .hours__card-text strong {
+    color: var(--ink);
+  }
+
+  .hours__steps {
+    display: grid;
+    gap: 0.75rem;
+    margin: 0.35rem 0;
+  }
+  .hours__steps li {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+  .hours__step-index {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--olive-dark);
+    padding-top: 0.15rem;
+  }
+
+  .hours__actions {
+    display: grid;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+  .hours__demo {
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    line-height: 1.55;
+    background: rgba(119, 122, 80, 0.12);
+    border-left: 3px solid var(--olive);
+    padding: 0.6rem 0.75rem;
+    border-radius: 0 var(--radius) var(--radius) 0;
+  }
+
+  @media (min-width: 940px) {
+    .hours__inner {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: clamp(3rem, 6vw, 5rem);
+      align-items: center;
+    }
+  }
+</style>

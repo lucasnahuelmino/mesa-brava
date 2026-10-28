@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <defs>
+    <pattern id="p" width="32" height="32" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="32" height="32" fill="#EBE3D3"/>
+      <rect width="16" height="32" fill="#F5F0E6"/>
+    </pattern>
+  </defs>
+  <rect width="800" height="600" fill="url(#p)"/>
+  <rect x="40" y="40" width="720" height="520" fill="none" stroke="#777A50" stroke-width="2" stroke-dasharray="8 8"/>
+  <text x="400" y="290" text-anchor="middle" font-family="Georgia, serif" font-size="46" font-weight="700" fill="#54252C">MESA BRAVA</text>
+  <text x="400" y="345" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="22" letter-spacing="4" fill="#5F6240">IMAGEN NO DISPONIBLE</text>
+</svg>

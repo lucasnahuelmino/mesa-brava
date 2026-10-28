@@ -1,0 +1,268 @@
+---
+import { NAV, SITE } from '../../config/site';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="shell">
+    <div class="site-footer__top">
+      <div class="site-footer__brand">
+        <p class="site-footer__logo">MESA BRAVA</p>
+        <p class="site-footer__descriptor">{SITE.descriptor}.</p>
+        <p class="site-footer__address">
+          {SITE.address.street}<br />
+          {SITE.address.city}
+        </p>
+        <p class="site-footer__demo">{SITE.address.note}</p>
+      </div>
+
+      <div class="site-footer__col">
+        <h2 class="site-footer__heading">Navegación</h2>
+        <ul class="site-footer__list">
+          {
+            NAV.map((item) => (
+              <li>
+                <a href={item.href}>{item.label}</a>
+              </li>
+            ))
+          }
+          <li>
+            <a href="/#horarios">Horarios</a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="site-footer__col">
+        <h2 class="site-footer__heading">Contacto</h2>
+        <ul class="site-footer__list">
+          <li>
+            <a href={`tel:${SITE.phone.tel}`}>{SITE.phone.display}</a>
+            <span class="site-footer__muted">Teléfono de demostración</span>
+          </li>
+          <li>
+            <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
+          </li>
+          <li>
+            <a
+              href={`https://wa.me/${SITE.whatsapp.number}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              WhatsApp {SITE.whatsapp.display}
+            </a>
+            <span class="site-footer__muted">{SITE.whatsapp.demoLabel}</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="site-footer__col">
+        <h2 class="site-footer__heading">Horarios</h2>
+        <ul class="site-footer__hours">
+          {
+            SITE.hours.map((row) => (
+              <li>
+                <span>{row.days}</span>
+                <strong>{row.hours}</strong>
+              </li>
+            ))
+          }
+        </ul>
+        <h2 class="site-footer__heading site-footer__heading--gap">Redes</h2>
+        <ul class="site-footer__social">
+          {
+            SITE.socials.map((social) => (
+              <li>
+                <a
+                  href={social.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={`Enlace de demostración (${social.label})`}
+                >
+                  {social.label}
+                  <span aria-hidden="true">↗</span>
+                  <span class="visually-hidden">(enlace de demostración, se abre en una pestaña nueva)</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+
+    <div class="site-footer__bottom">
+      <p class="site-footer__legal">
+        MESA BRAVA es un restaurante <strong>ficticio</strong>. Este sitio es una demo comercial de
+        ALMATE: platos, precios, fotografías, reseñas inexistentes y datos de contacto son de
+        demostración.
+      </p>
+      <p class="site-footer__credit">
+        {SITE.studio.credit}
+        <span class="site-footer__copy">© {year} · {SITE.name}</span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--black);
+    color: var(--cream);
+    padding: clamp(3rem, 7vw, 5rem) 0 2rem;
+    margin-top: auto;
+  }
+
+  .site-footer__top {
+    display: grid;
+    gap: 2.5rem;
+    padding-bottom: 2.75rem;
+    border-bottom: 1px solid var(--line-light);
+  }
+
+  .site-footer__logo {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(1.9rem, 6vw, 2.6rem);
+    letter-spacing: -0.01em;
+    line-height: 1;
+  }
+  .site-footer__descriptor {
+    color: rgba(245, 240, 230, 0.72);
+    margin-top: 0.5rem;
+    font-size: 0.95rem;
+  }
+  .site-footer__address {
+    margin-top: 1.25rem;
+    font-size: 0.95rem;
+    line-height: 1.7;
+  }
+  .site-footer__demo {
+    margin-top: 0.5rem;
+    font-size: 0.78rem;
+    color: rgba(245, 240, 230, 0.55);
+  }
+
+  .site-footer__heading {
+    font-family: var(--font-sans);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--olive-on-dark);
+    margin-bottom: 1rem;
+  }
+  .site-footer__heading--gap {
+    margin-top: 1.75rem;
+  }
+
+  .site-footer__list {
+    display: grid;
+    gap: 0.7rem;
+    font-size: 0.95rem;
+  }
+  .site-footer__list a {
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.16s ease, color 0.16s ease;
+  }
+  .site-footer__list a:hover {
+    border-bottom-color: currentColor;
+  }
+  .site-footer__muted {
+    display: block;
+    font-size: 0.75rem;
+    color: rgba(245, 240, 230, 0.5);
+    margin-top: 0.15rem;
+  }
+
+  .site-footer__hours {
+    display: grid;
+    gap: 0.65rem;
+    font-size: 0.9rem;
+  }
+  .site-footer__hours li {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    border-bottom: 1px dotted rgba(245, 240, 230, 0.28);
+    padding-bottom: 0.5rem;
+  }
+  .site-footer__hours strong {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .site-footer__social {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .site-footer__social a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-height: 44px;
+    padding: 0.4rem 0.9rem;
+    border: 1px solid var(--line-light);
+    border-radius: 999px;
+    font-size: 0.88rem;
+    text-decoration: none;
+    transition: background-color 0.16s ease, color 0.16s ease;
+  }
+  .site-footer__social a:hover {
+    background: var(--cream);
+    color: var(--black);
+  }
+
+  .site-footer__bottom {
+    display: grid;
+    gap: 1rem;
+    padding-top: 1.75rem;
+  }
+  .site-footer__legal {
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: rgba(245, 240, 230, 0.62);
+    max-width: 70ch;
+  }
+  .site-footer__legal strong {
+    color: rgba(245, 240, 230, 0.9);
+  }
+  .site-footer__credit {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    align-items: baseline;
+    font-size: 0.82rem;
+    color: rgba(245, 240, 230, 0.75);
+  }
+  .site-footer__copy {
+    color: rgba(245, 240, 230, 0.68);
+  }
+
+  @media (min-width: 700px) {
+    .site-footer__top {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 2.5rem 2rem;
+    }
+    .site-footer__bottom {
+      grid-template-columns: 1.4fr 1fr;
+      align-items: start;
+      gap: 2rem;
+    }
+    .site-footer__credit {
+      justify-content: flex-end;
+      text-align: right;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.3rem;
+    }
+  }
+
+  @media (min-width: 1040px) {
+    .site-footer__top {
+      grid-template-columns: 1.5fr 0.9fr 1.1fr 1.2fr;
+    }
+  }
+</style>
